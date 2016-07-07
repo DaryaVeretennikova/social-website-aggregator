@@ -1,3 +1,15 @@
 .hidden_div{
 	display:none;
 }
+
+.website-item {
+  margin-bottom: 40px;
+}
+
+#website_form {
+  margin-bottom: 50px;
+}
+
+.website-item {
+  list-style-type: none;
+}

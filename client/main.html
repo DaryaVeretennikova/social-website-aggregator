@@ -1,30 +1,64 @@
 <head>
-  <title>siteace</title>
+  <title>Websites aggregator</title>
+  <meta charset="UTF-8">
 </head>
 
 <body>
-	<!-- navbar  - you will be putting the login functions here -->
-	<nav class="navbar navbar-default">
+</body>
+
+<template name="ApplicationLayout">
+  {{> yield "navbar"}}
+  {{> yield "main"}}
+</template>
+
+<!-- navbar -->
+<template name="navbar">
+  <nav class="navbar navbar-default">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
-	      <a class="navbar-brand" href="#">
-	        Site Ace
+	      <a class="navbar-brand" href="/">
+	        Websites aggregator
 	      </a>
 	    </div>
+      <div class="navbar-left">
+        {{> loginButtons}}
+      </div>
 	  </div>
 	</nav>
+</template>
+<!-- /navbar -->
 
-	<div class="container">
+<!-- main page -->
+<template name="websiteMain">
+  <div class="container">
 		{{> website_form}}
 		{{> website_list}}
 	</div>
-</body>
+</template>
+<!-- /main page -->
+
+<!-- detail page -->
+<template name="detailPage">
+  <div class="container">
+    {{>website_item}}
+
+    <div class="comment-section">
+      {{> commentsBox id='_id' }}
+    </div>
+  </div>
+</template>
+<!-- /detail page -->
 
 
 <template name="website_form">
-	<a class="btn btn-default js-toggle-website-form" href="#">
-  		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-	</a>
+  {{#if currentUser}}
+  <div class="alert alert-info">Press the button to add new site
+
+    <a class="btn btn-default js-toggle-website-form" href="#">
+    		<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+  	</a>
+  </div>
+
 	<div id="website_form" class="hidden_div">
 		<form class="js-save-website-form">
 		  <div class="form-group">
@@ -43,24 +77,31 @@
 		  <button type="submit" class="btn btn-default">Submit</button>
 		</form>
 	</div>
+  {{else}}
+    <div class="alert alert-warning">Sign in to add new websites</div>
+  {{/if}}
 </template>
 
 <!-- template that displays several website items -->
 <template name="website_list">
 	<ol>
 	{{#each websites}}
-	{{>website_item}}
+	  {{>website_item}}
 	{{/each}}
 	</ol>
 </template>
 
 <!-- template that displays individual website entries -->
 <template name="website_item">
-<li>
-	<a href="{{url}}">{{title}}</a>
+<li class="website-item">
+	<a href="{{url}}"><h2>{{title}}</h2></a>
 	<p>
 		{{description}}
+    <br><br>
+    <a href="/{{_id}}">go to website page</a>
 	</p>
+  <p>Rating: {{rating}} (upvotes: <span class="label label-success">{{upvotedCounter}}</span>, downvotes: <span class="label label-danger">{{downvotedCounter}}</span>)</p>
+  <p>Created on: {{createdOn}}</p>
 	<a href="#" class="btn btn-default js-upvote">
 		<span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
 	</a>
