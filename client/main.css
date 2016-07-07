@@ -13,3 +13,7 @@
 .website-item {
   list-style-type: none;
 }
+
+.comments-box {
+  padding: 0;
+}

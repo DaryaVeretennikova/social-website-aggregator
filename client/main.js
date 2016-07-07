@@ -19,15 +19,6 @@ Router.route('/', function () {
   });
 });
 
-// Router.route('/images', function () {
-//   this.render('navbar', {
-//     to: 'navbar'
-//   });
-//   this.render('images', {
-//     to: 'main'
-//   });
-// });
-//
 Router.route(':_id', function () {
   this.render('navbar', {
     to: 'navbar'
@@ -54,31 +45,24 @@ Comments.ui.config({
 
 // /end comments
 
-/////
 // template helpers
-/////
 
 // helper function that returns all available websites
 Template.website_list.helpers({
   websites:function(){
     return Websites.find({}, {sort: {rating: -1}});
-
-    //return Images.find({}, { sort: { createdOn: -1, rating: -1 }, limit: Session.get('imageLimit') });
   }
 });
 
+// /end template helpers
 
-/////
+
 // template events
-/////
 
 Template.website_item.events({
   "click .js-upvote":function(e){
-    // example of how you can access the id for the website in the database
-    // (this is the data context for the template)
-    var website_id = this._id;
 
-    console.log(Meteor)
+    var website_id = this._id;
 
     Websites.update(
       website_id,
@@ -88,17 +72,10 @@ Template.website_item.events({
       }}
     );
 
-    console.log(this)
-
-    console.log("Up voting website with id "+website_id);
-    // put the code in here to add a vote to a website!
-
     return false;// prevent the button from reloading the page
   },
   "click .js-downvote":function(event){
 
-    // example of how you can access the id for the website in the database
-    // (this is the data context for the template)
     var website_id = this._id;
 
     Websites.update(
@@ -109,10 +86,6 @@ Template.website_item.events({
       }}
     );
 
-    console.log("Down voting website with id "+website_id);
-
-    // put the code in here to remove a vote from a website!
-
     return false;// prevent the button from reloading the page
   }
 })
@@ -120,13 +93,31 @@ Template.website_item.events({
 Template.website_form.events({
   "click .js-toggle-website-form":function(event){
     $("#website_form").toggle('slow');
+
+
+
+
   },
   "submit .js-save-website-form":function(event){
 
-    // here is an example of how to get the url out of the form:
     var url = event.target.url.value;
     var title = event.target.title.value;
     var description = event.target.description.value;
+
+    if (url) {
+      Meteor.http.call("GET", url, function(error,result) {
+        console.log(error, result)
+        if(!error && result.statusCode === 200) {
+          var resultContent = result.content;
+          var parser = new DOMParser();
+          var parsedResult = parser.parseFromString(resultContent, 'text/html');
+          var parsedTitle = parsedResult.getElementsByTagName('title')[0].innerHTML;
+          var parsedDescription = parsedResult.querySelector("meta[name=\'description\']").content;
+        } else {
+          alert('Sorry, we can\'t get proper http answer, please fill description field to continue');
+        }
+     });
+    }
 
     if (url && description) {
       Websites.insert({
@@ -138,20 +129,15 @@ Template.website_form.events({
         rating: 0,
         upvotedCounter: 0,
         downvotedCounter: 0
-      })
-
+      });
 
       $('#website_form')
         .find('input').val('');
       $('#website_form').toggle('slow');
+
     } else {
       alert('Add and url and a description to add new website!')
     }
-
-
-
-    console.log(url, title, description)
-    console.log("The url they entered is: "+url);
 
     //  put your website saving code in here!
 
