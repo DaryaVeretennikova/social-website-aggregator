@@ -137,7 +137,7 @@ Template.website_form.events({
             if (parsedResult.querySelector("meta[name=\'description\']")) {
               description = parsedResult.querySelector("meta[name=\'description\']").content;
             } else {
-              description = "Description is no defined";
+              description = "Description is not defined";
             }
 
             insertResult(title, description);
@@ -157,6 +157,9 @@ Template.website_form.events({
     $('#website_form')
       .find('input').val('');
     $('#website_form').toggle('slow');
+
+    //show success alert
+    $('#website_form').next().show();
 
 
     return false;// stop the form submit from reloading the page
