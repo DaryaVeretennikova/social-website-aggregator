@@ -17,3 +17,12 @@
 .comments-box {
   padding: 0;
 }
+
+.navbar-left {
+	margin-top: 7px;
+}
+
+ol {
+	margin: 0;
+	padding: 0;
+}

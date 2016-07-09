@@ -150,6 +150,7 @@ Template.website_form.events({
       insertResult(title, description);
     } else {
       alert('Add an url and a description to add new website!');
+      return false;
     }
 
     //clean form
