@@ -93,33 +93,15 @@ Template.website_item.events({
 Template.website_form.events({
   "click .js-toggle-website-form":function(event){
     $("#website_form").toggle('slow');
-
-
-
-
   },
+
   "submit .js-save-website-form":function(event){
 
     var url = event.target.url.value;
     var title = event.target.title.value;
     var description = event.target.description.value;
 
-    if (url) {
-      Meteor.http.call("GET", url, function(error,result) {
-        console.log(error, result)
-        if(!error && result.statusCode === 200) {
-          var resultContent = result.content;
-          var parser = new DOMParser();
-          var parsedResult = parser.parseFromString(resultContent, 'text/html');
-          var parsedTitle = parsedResult.getElementsByTagName('title')[0].innerHTML;
-          var parsedDescription = parsedResult.querySelector("meta[name=\'description\']").content;
-        } else {
-          alert('Sorry, we can\'t get proper http answer, please fill description field to continue');
-        }
-     });
-    }
-
-    if (url && description) {
+    var insertResult = function(title, description) {
       Websites.insert({
         url: url,
         title: title || 'Noname title',
@@ -130,16 +112,52 @@ Template.website_form.events({
         upvotedCounter: 0,
         downvotedCounter: 0
       });
+    };
 
-      $('#website_form')
-        .find('input').val('');
-      $('#website_form').toggle('slow');
+    if (url && !title && !description) {
 
+     Meteor.call(
+       'remoteGet',
+       url,
+       {},
+       function(error,response){
+        //if an error happened, error argument contains the details
+        //if the request succeeded, the response will contain the response of the server request
+          if(!error && response.statusCode === 200) {
+            var resultContent = response.content;
+            var parser = new DOMParser();
+            var parsedResult = parser.parseFromString(resultContent, 'text/html');
+
+            if (parsedResult.getElementsByTagName('title')) {
+              title = parsedResult.getElementsByTagName('title')[0].innerHTML;
+            } else {
+              title = "Title is no defined";
+            }
+
+            if (parsedResult.querySelector("meta[name=\'description\']")) {
+              description = parsedResult.querySelector("meta[name=\'description\']").content;
+            } else {
+              description = "Description is no defined";
+            }
+
+            insertResult(title, description);
+          } else {
+            alert('Sorry, we can\'t get proper http answer, please fill url and description fields to continue');
+            return false;
+          }
+      });
+    } else if (url && description) {
+      insertResult(title, description);
     } else {
-      alert('Add and url and a description to add new website!')
+      alert('Add an url and a description to add new website!');
     }
 
-    //  put your website saving code in here!
+    //clean form
+
+    $('#website_form')
+      .find('input').val('');
+    $('#website_form').toggle('slow');
+
 
     return false;// stop the form submit from reloading the page
 
